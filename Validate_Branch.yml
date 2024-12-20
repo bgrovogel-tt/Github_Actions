@@ -1,0 +1,40 @@
+name: Validate Branch
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - '*/CJTRF-*'
+      - 'master'
+  push:
+    branches:
+      - '*/CJTRF-*'
+      - 'master'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  validate_branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if branch matches CJTRF-**** pattern
+        run: |
+          # Check if it's a pull request merge reference
+          if [[ "$GITHUB_REF" =~ ^refs/pull/ ]]; then
+            # If it's a pull request, use the source branch from GITHUB_HEAD_REF
+            BRANCH_NAME=$GITHUB_HEAD_REF
+            echo "Extracted branch name from GITHUB_HEAD_REF: $BRANCH_NAME"
+          else
+            # For push events, attempt to extract the source branch
+            BRANCH_NAME=$(git log -1 --pretty=%B | grep -o 'CJTRF-[0-9]*' || echo "")
+            echo "Extracted source branch name: $BRANCH_NAME"
+          fi
+          
+          if [[ ! "$BRANCH_NAME" =~ CJTRF-[0-9]+ ]]; then
+            echo "Branch name '$BRANCH_NAME' is invalid"
+            exit 1  # Fail the job if the branch name doesn't match the pattern
+          else
+            echo "Branch name '$BRANCH_NAME' is valid"
+          fi
