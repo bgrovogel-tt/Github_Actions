@@ -2,10 +2,10 @@ name: Validate Branch
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - '*/CJTRF-*'
-      - 'master'
+  # pull_request:
+  #   branches:
+  #     - '*/CJTRF-*'
+  #     - 'master'
   push:
     branches:
       - '*/CJTRF-*'
